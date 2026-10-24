@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
+from google import genai
 from uagents import Agent, Context, Protocol
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
@@ -13,19 +13,16 @@ from uagents_core.contrib.protocols.chat import (
 
 load_dotenv()
 
-asi1_api_key = os.getenv("ASI1_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 agent_seed = os.getenv("AGENT_SEED")
 
-if not asi1_api_key:
-    raise RuntimeError("ASI1_API_KEY is missing from .env")
+if not gemini_api_key:
+    raise RuntimeError("GEMINI_API_KEY is missing from .env")
 
 if not agent_seed:
     raise RuntimeError("AGENT_SEED is missing from .env")
 
-client = AsyncOpenAI(
-    base_url="https://api.asi1.ai/v1",
-    api_key=asi1_api_key,
-)
+client = genai.Client(api_key=gemini_api_key)
 
 agent = Agent(
     name="fetchathon_agent",
@@ -66,29 +63,15 @@ async def handle_chat_message(
         response = "Please send a text message."
     else:
         try:
-            result = await client.chat.completions.create(
-                model="asi1",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are a helpful AI assistant being developed "
-                            "for Fetch-A-Thon. Give clear, accurate responses. "
-                            "Do not claim to have performed actions that you "
-                            "have not actually performed."
-                        ),
-                    },
-                    {"role": "user", "content": user_text},
-                ],
+            result = await client.aio.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=user_text,
             )
 
-            response = (
-                result.choices[0].message.content
-                or "I couldn't generate a response."
-            )
+            response = result.text or "I couldn't generate a response."
 
         except Exception:
-            ctx.logger.exception("ASI1 request failed")
+            ctx.logger.exception("Gemini request failed")
             response = "Sorry, I couldn't process that request. Please try again."
 
     await ctx.send(
