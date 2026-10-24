@@ -1,19 +1,23 @@
-# Fetch-A-Thon
+# RepoTrail
 
-A collaborative agentic AI project built for **Fetch-A-Thon 3.0**, using the Fetch.ai ecosystem.
+![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
+![tag:hackathon](https://img.shields.io/badge/hackathon-5F43F1)
+
+RepoTrail is a codebase learning agent built for **Fetch-A-Thon 3.0** with Fetch.ai uAgents and ASI:One. Give it a public GitHub repository and a question; it retrieves relevant repository context and returns a source-linked walkthrough, a suggested next step, and a small learning exercise.
 
 ## Overview
 
-This repository contains the source code for our hackathon project. The goal is to build an agentic AI application that can reason about user requests, execute tasks using tools, and coordinate agent workflows.
+The primary workflow runs inside an ASI:One conversation through the Agent Chat Protocol (ACP). The agent reads public repository metadata, the README, the file tree, and a small set of likely relevant source files through GitHub's REST API. ASI:One explains the retrieved evidence and cites file paths.
 
-> Project details and architecture will be documented as development progresses.
+The uAgent is named `repo_trail`; its Agentverse address is assigned from `AGENT_SEED` at runtime and is printed when it starts. Register/deploy it through Agentverse to make it discoverable in ASI:One.
 
 ## Tech Stack
 
 - **Language:** Python
 - **Agent Framework:** Fetch.ai uAgents
 - **Agent Communication:** Agent Chat Protocol (ACP)
-- **LLM Client:** OpenAI-compatible API client for ASI1
+- **LLM:** ASI:One Chat Completions API
+- **Repository data:** GitHub REST API
 - **Testing:** pytest
 - **Version Control:** Git and GitHub
 
@@ -67,7 +71,7 @@ Create your local environment file:
 cp .env.example .env
 ```
 
-Add the required API keys and configuration values to `.env` when they are defined by the project.
+Set `ASI_ONE_API_KEY` from your ASI:One developer account and choose a private, unique `AGENT_SEED`. `GITHUB_TOKEN` is optional and raises GitHub's API rate limit for public repository reads.
 
 **Never commit `.env` or expose API keys in source code.**
 
@@ -76,8 +80,21 @@ Add the required API keys and configuration values to `.env` when they are defin
 ```zsh
 python -m pip check
 python -c "from uagents import Agent, Context, Protocol; print('uAgents setup OK')"
-pytest
 ```
+
+### Run RepoTrail
+
+```zsh
+python -m agents.agent
+```
+
+In ASI:One, ask a question with a public repository URL, for example:
+
+```text
+https://github.com/pallets/flask — explain how a request reaches a route handler
+```
+
+Then ask follow-up questions in the same conversation; RepoTrail remembers the repository for that sender while the agent process is running. Private repositories and writing to GitHub are not supported in this MVP.
 
 ## Development Workflow
 
@@ -116,7 +133,7 @@ Before starting a new task, synchronize your local branch with the latest `main`
 
 ```text
 agent/
-├── agents/          # Agent definitions and handlers
+├── agents/          # RepoTrail uAgent and GitHub analysis workflow
 ├── tools/           # External APIs and executable tools
 ├── workflows/       # Task orchestration
 ├── models/          # Request and response schemas
