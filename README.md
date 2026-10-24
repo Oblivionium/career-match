@@ -75,6 +75,7 @@ match_apply/      Match scoring and Application Pack generation
 shared/           Configuration, message support, LLM client, retry, and skills
 models/           Message models shared between agents
 scripts/          Startup and deployment helpers
+hosted_service.py Runs all four mailbox agents behind a host health endpoint
 docs/             Agentverse profiles, demo script, and team handoff
 tests/            Unit and end-to-end tests
 ```
@@ -145,38 +146,35 @@ Stop the local agents with:
 
 Mailbox mode connects a running local process to Agentverse; the process must stay running. It is not the same as uploading code to Agentverse Hosted Agents.
 
-## Hosting on Render
+## Hosting on Render or Railway
 
-Render Background Workers can keep the mailbox agents running without exposing public HTTP ports. Create four Background Worker services from the `main` branch of this repository, one for each agent. Render Background Workers require a paid service plan; see [Render service types](https://render.com/docs/service-types).
+`hosted_service.py` runs all four agents in one Python process, each on its own internal uAgents port (`8001`–`8004`). It also serves `/healthz` on the host-provided `PORT`. Mailbox messages travel through Agentverse, so the four internal ports do not need to be public. Both hosts route public web traffic to a single port per service.
 
-For each service, set:
+### Render Free Web Service
 
-- **Runtime:** Python 3
-- **Python version:** `3.12.11`
-- **Build command:** `pip install -r requirements.txt`
-- **Root directory:** leave blank
-- **Environment:** `USE_MAILBOX=true` and the matching agent seed
+Render does not offer free Background Workers or Cron Jobs. A free Web Service can run this combined process for a short demo:
 
-Use these start commands:
+1. Create **New → Web Service**, connect this repository, select `main`, and choose the **Free** instance.
+2. Set **Build Command** to `pip install -r requirements.txt` and **Start Command** to `python hosted_service.py`. Leave **Root Directory** blank and select Python 3. The root `.python-version` file pins Python to `3.12.11`.
+3. Add `USE_MAILBOX=true` and all four existing seed variables: `COORD_SEED`, `RESUME_SEED`, `SCOUT_SEED`, and `MATCH_SEED`. Add model/job API keys as needed. Keep the same seeds as the connected Agentverse mailboxes.
+4. Set the Render health check path to `/healthz`. If you want the free instance to stay awake between chats, configure an external HTTP monitor to request `/healthz` every 10 minutes.
+5. Stop local copies of the agents before using the hosted copies. Check Render logs for successful mailbox registration.
 
-| Render service | Start command | Seed variable |
-|---|---|---|
-| Resume Analyst | `python -m resume_analyst.agent` | `RESUME_SEED` |
-| Job Scout | `python -m job_scout.agent` | `SCOUT_SEED` |
-| Match & Apply | `python -m match_apply.agent` | `MATCH_SEED` |
-| Career Coordinator | `python -m coordinator.agent` | `COORD_SEED` |
+The free Web Service has 512 MB RAM, spins down after 15 minutes without inbound HTTP traffic, and shares 750 free instance hours per workspace each month. A monitor can keep one service active, but this is a best-effort demo setup; Render may restart the service, and the four agents may exceed the memory limit. Render Cron Jobs are not a replacement: each run must exit, runs stop after 12 hours, and there is a minimum $1/month charge. See [Render free services](https://render.com/docs/free) and [Cron Jobs](https://render.com/docs/cronjobs).
 
-Keep the same seeds used for the connected mailboxes. In the Career Coordinator service, set `RESUME_ADDR`, `SCOUT_ADDR`, and `MATCH_ADDR` to the worker addresses shown in their startup logs. This allows the coordinator to message the right agents.
+### Railway Free Trial
 
-Add secrets through each service's Render **Environment** settings; do not commit them:
+Railway is a better fit for a short continuous run because it supports long-running services. A new free account currently includes $5 in one-time usage credits for 30 days, with no credit card required. Connect GitHub for full-trial verification so the service can make outbound connections to Agentverse. [Railway Free Trial](https://docs.railway.com/pricing/free-trial)
 
-- `GEMINI_API_KEY` or `ASI_ONE_API_KEY` for Career Coordinator, Resume Analyst, and Match & Apply
-- `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, and/or `JSEARCH_API_KEY` for Job Scout (optional)
-- `PAYMENTS_ENABLED=false` on Career Coordinator until the payment flow is configured; set it to `true` when ready
+1. Create a project with **Deploy from GitHub Repo** and choose `Oblivionium/career-match`.
+2. Set the service **Start Command** to `python hosted_service.py`. Railpack detects Python and installs `requirements.txt`; it reads `.python-version` to use `3.12.11`.
+3. In **Variables**, add `USE_MAILBOX=true`, the four existing agent seeds, and any model or job-search keys. Do not paste `.env` into GitHub.
+4. Deploy and check the service logs for all four agents and mailbox registration. A public domain is optional; the agents communicate through mailboxes.
+5. Set a hard usage limit in Railway's workspace usage controls so the service stops when its trial budget is exhausted.
 
-Before moving the agents to Render, connect each mailbox locally using the same seeds. Then stop local agent processes before starting the Render copies. Avoid running two processes with the same agent identity at once.
+The $5 trial credit is temporary. After the trial, the Free plan provides $1/month in usage credit and a 0.5 GB RAM limit per service, so it may not sustain a continuously running multi-agent process. Check actual usage in Railway before leaving the service running. See [Railway pricing](https://railway.com/pricing) and [usage limits](https://docs.railway.com/pricing/cost-control).
 
-Render services use an ephemeral filesystem by default. CareerMatch stores chat sessions in the coordinator's local agent storage, so sessions can be lost after a restart or redeploy unless persistent storage is configured. See [Render persistent disks](https://render.com/docs/disks).
+For either host, preserve the mailbox addresses by using the existing four seeds, and do not run the same agent identity locally and in the cloud at the same time. The coordinator derives worker addresses from the seeds unless `RESUME_ADDR`, `SCOUT_ADDR`, or `MATCH_ADDR` is explicitly set. Hosted filesystems may be ephemeral, so coordinator sessions can be lost after a restart or redeploy.
 
 ## Configuration
 

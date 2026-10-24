@@ -1,24 +1,30 @@
-# CareerMatch: Internship & Job Finder for Students
+# CareerMatch — Career Coordinator
 
-Paste your resume and get **live internships and entry-level jobs that actually fit it**, ranked
-with reasons and the exact skills you're missing. Then get a tailored **Application Pack**
-(cover letter, resume bullets for that role, and a plan to close your skill gaps).
+I help students and early-career candidates find jobs and internships that fit their experience. Share your resume, tell me what kind of role you want, and I’ll find relevant openings, explain the match, and help you prepare an application.
 
-## What you can ask
-- "Find internships that match my resume" (then paste your resume)
-- "Search machine learning internships in Bangalore"
-- "Search data analyst intern remote"
-- "Which of these jobs fits me best and what am I missing?"
-- "Write a cover letter for job 2"
+## Get started
 
-## How it works
-Works with three specialist agents: Resume Analyst (skills and level), Job Scout (live listings
-from several job APIs), and Match & Apply (explainable scoring and application packs). Uses
-interactive cards for preferences, results, job details and checkout.
+Paste your resume as text. Then choose a target role, location, and work type when I ask. You can also start with a search request such as:
 
-## Pricing
-Matching is free. Application Pack: small FET fee per job via the Agent Payment Protocol.
+- “Find software engineering internships in Jaipur.”
+- “Search for remote data analyst jobs.”
+- “I’m looking for entry-level Python roles in Bengaluru.”
 
-## Keywords
-internship, internships, jobs, job search, resume, CV, students, freshers, entry level,
-career, cover letter, skill gap, India, remote jobs, hiring
+## What I can do
+
+- Extract your skills, education, experience, and suitable roles from your resume.
+- Search job and internship listings from several sources.
+- Rank opportunities and explain relevant experience, matched skills, and gaps.
+- Draft a tailored cover letter, resume bullets, and a plan for building missing skills.
+
+After results appear, try `view 2` to see a job, `pack 2` to prepare an application pack, or `back` to return to your results. Matching is free. If an application pack requires payment, I’ll show the amount and ask before proceeding.
+
+## Privacy
+
+Your resume and search session are stored so you can continue the conversation. Type `forget me` to remove your saved session.
+
+## About CareerMatch
+
+CareerMatch is a multi-agent project. I coordinate the conversation and work with specialist agents for resume analysis, job search, and job matching. Job availability and requirements can change, so check the employer’s listing before applying.
+
+Keywords: career guidance, job search, internships, entry-level jobs, fresher jobs, resume analysis, job matching, cover letters, skill gaps, India, remote work
