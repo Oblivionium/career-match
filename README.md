@@ -80,6 +80,7 @@ Set `ASI_ONE_API_KEY` from your ASI:One developer account and choose a private, 
 ```zsh
 python -m pip check
 python -c "from uagents import Agent, Context, Protocol; print('uAgents setup OK')"
+python -m pytest
 ```
 
 ### Run RepoTrail
@@ -134,7 +135,7 @@ Before starting a new task, synchronize your local branch with the latest `main`
 ```text
 agent/
 ├── agents/          # RepoTrail uAgent and GitHub analysis workflow
-├── tools/           # External APIs and executable tools
+├── tools/           # GitHub API integration and executable tools
 ├── workflows/       # Task orchestration
 ├── models/          # Request and response schemas
 ├── tests/           # Automated tests
