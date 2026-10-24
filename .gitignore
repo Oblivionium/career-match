@@ -10,3 +10,5 @@ private_keys.json
 .vscode/
 # uAgents storage files (contain users' resumes and results; never commit)
 agent*_data.json
+.agentverse-workspace/
+logs/
