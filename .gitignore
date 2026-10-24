@@ -1,31 +1,7 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Secrets
 .env
-.env.*
-!.env.example
-
-# Testing and coverage
+.venv/
+__pycache__/
+*.pyc
 .pytest_cache/
-.coverage
-htmlcov/
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+# uAgents storage files (contain users' resumes and results; never commit)
+agent*_data.json
