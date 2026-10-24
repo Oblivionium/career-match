@@ -43,6 +43,8 @@ Every card also carries a plain-text version, and typed commands (`view 2`, `pac
 
 Set `SIMULATE_SOURCE_FAILURE=adzuna` to demonstrate source fallback live.
 
+For LLM calls, CareerMatch uses ASI:One when `ASI_ONE_API_KEY` is set; otherwise it uses Gemini when `GEMINI_API_KEY` is set. With neither key, it uses the documented rule-based and template fallbacks.
+
 ## Setup (WSL / Linux)
 
 ```bash

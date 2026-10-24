@@ -54,6 +54,8 @@ USE_MAILBOX = env_bool("USE_MAILBOX", True)
 ASI_ONE_API_KEY = env("ASI_ONE_API_KEY")
 ASI_ONE_BASE_URL = env("ASI_ONE_BASE_URL", "https://api.asi1.ai/v1")
 ASI_ONE_MODEL = env("ASI_ONE_MODEL", "asi1")
+GEMINI_API_KEY = env("GEMINI_API_KEY")
+GEMINI_MODEL = env("GEMINI_MODEL", "gemini-2.5-flash")
 
 # --- Job sources ------------------------------------------------------------------------
 ADZUNA_APP_ID = env("ADZUNA_APP_ID")

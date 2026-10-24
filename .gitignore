@@ -3,5 +3,10 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+# Local identities and private keys must never be committed.
+private_keys.json
+*.pem
+# Editor-specific user settings.
+.vscode/
 # uAgents storage files (contain users' resumes and results; never commit)
 agent*_data.json
