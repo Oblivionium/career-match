@@ -1,7 +1,8 @@
 import os
 import re
 
-import httpx
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 from uagents import Agent, Context, Protocol
 from uagents_core.contrib.protocols.chat import (
@@ -14,19 +15,21 @@ from tools.github import RepositoryError, get_repository_context
 
 load_dotenv()
 
-asi_one_api_key = os.getenv("ASI_ONE_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 agent_seed = os.getenv("AGENT_SEED")
 
-if not asi_one_api_key:
-    raise RuntimeError("ASI_ONE_API_KEY is missing from .env")
+if not gemini_api_key:
+    raise RuntimeError("GEMINI_API_KEY is missing from .env")
 
 if not agent_seed:
     raise RuntimeError("AGENT_SEED is missing from .env")
 
+client = genai.Client(api_key=gemini_api_key)
+
 agent = Agent(
     name="repo_trail",
     seed=agent_seed,
-    port=8001,
+    port=int(os.getenv("AGENT_PORT", "8001")),
     mailbox=True,
     publish_agent_details=True,
 )
@@ -49,35 +52,19 @@ async def explain_repository(repository_context: str, question: str) -> str:
         "terms, and finish with one small exercise or a useful follow-up question."
     )
     user_prompt = f"Student question: {question}\n\nRepository evidence:\n{repository_context}"
-    payload = {
-        "model": "asi1",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "max_tokens": 1_500,
-        "temperature": 0.2,
-    }
-    headers = {
-        "Authorization": f"Bearer {asi_one_api_key}",
-        "Content-Type": "application/json",
-    }
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                "https://api.asi1.ai/v1/chat/completions",
-                headers=headers,
-                json=payload,
-            )
-            response.raise_for_status()
-            data = response.json()
-    except httpx.HTTPError as exc:
-        raise RuntimeError("ASI:One couldn't generate the walkthrough. Please try again shortly.") from exc
-
-    choices = data.get("choices") or []
-    if not choices:
-        raise RuntimeError("ASI:One returned an empty response. Please try again.")
-    return choices[0].get("message", {}).get("content") or "I couldn't generate the walkthrough. Please try again."
+        result = await client.aio.models.generate_content(
+            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                max_output_tokens=1_500,
+                temperature=0.2,
+            ),
+        )
+        return result.text or "I couldn't generate the walkthrough. Please try again."
+    except Exception as exc:
+        raise RuntimeError("Gemini couldn't generate the walkthrough. Please try again shortly.") from exc
 
 
 @agent.on_event("startup")

@@ -3,11 +3,11 @@
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
 ![tag:hackathon](https://img.shields.io/badge/hackathon-5F43F1)
 
-RepoTrail is a codebase learning agent built for **Fetch-A-Thon 3.0** with Fetch.ai uAgents and ASI:One. Give it a public GitHub repository and a question; it retrieves relevant repository context and returns a source-linked walkthrough, a suggested next step, and a small learning exercise.
+RepoTrail is a codebase learning agent built for **Fetch-A-Thon 3.0** with Fetch.ai uAgents. Give it a public GitHub repository and a question; it retrieves relevant repository context and returns a source-linked walkthrough, a suggested next step, and a small learning exercise.
 
 ## Overview
 
-The primary workflow runs inside an ASI:One conversation through the Agent Chat Protocol (ACP). The agent reads public repository metadata, the README, the file tree, and a small set of likely relevant source files through GitHub's REST API. ASI:One explains the retrieved evidence and cites file paths.
+The agent uses the Agent Chat Protocol (ACP) and can be reached through an Agentverse mailbox. It reads public repository metadata, the README, the file tree, and a small set of likely relevant source files through GitHub's REST API. Gemini explains the retrieved evidence and cites file paths.
 
 The uAgent is named `repo_trail`; its Agentverse address is assigned from `AGENT_SEED` at runtime and is printed when it starts. Register/deploy it through Agentverse to make it discoverable in ASI:One.
 
@@ -16,7 +16,7 @@ The uAgent is named `repo_trail`; its Agentverse address is assigned from `AGENT
 - **Language:** Python
 - **Agent Framework:** Fetch.ai uAgents
 - **Agent Communication:** Agent Chat Protocol (ACP)
-- **LLM:** ASI:One Chat Completions API
+- **LLM:** Gemini API
 - **Repository data:** GitHub REST API
 - **Testing:** pytest
 - **Version Control:** Git and GitHub
@@ -71,7 +71,7 @@ Create your local environment file:
 cp .env.example .env
 ```
 
-Set `ASI_ONE_API_KEY` from your ASI:One developer account and choose a private, unique `AGENT_SEED`. `GITHUB_TOKEN` is optional and raises GitHub's API rate limit for public repository reads.
+Set `GEMINI_API_KEY` and choose a private, unique `AGENT_SEED`. `GEMINI_MODEL` is optional; it defaults to `gemini-2.5-flash`. `GITHUB_TOKEN` is optional and raises GitHub's API rate limit for public repository reads.
 
 **Never commit `.env` or expose API keys in source code.**
 
